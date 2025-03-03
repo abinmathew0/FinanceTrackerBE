@@ -1,0 +1,19 @@
+const express = require("express");
+const dotenv = require("dotenv");
+const cors = require("cors");
+const { connectDB } = require("./config/db"); // ✅ Correct import
+
+dotenv.config();
+
+connectDB(); // ✅ Call the function properly
+
+const app = express();
+app.use(express.json());
+app.use(cors());
+
+// ✅ Define API routes
+app.use("/api/auth", require("./routes/authRoutes"));
+app.use("/api/transactions", require("./routes/transactionRoutes"));
+
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
