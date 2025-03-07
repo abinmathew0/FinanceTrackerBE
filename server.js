@@ -1,11 +1,11 @@
 const express = require("express");
 const dotenv = require("dotenv");
 const cors = require("cors");
-const { connectDB } = require("./config/db"); // ✅ Correct import
+const { connectDB } = require("./config/db");
 
 dotenv.config();
 
-connectDB(); // ✅ Call the function properly
+connectDB(); // ✅ Establish PostgreSQL connection
 
 const app = express();
 app.use(express.json());

@@ -1,7 +1,7 @@
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const { sql, connectDB } = require("../config/db");
+const { pool } = require("../config/db");
 
 const router = express.Router();
 
@@ -11,41 +11,30 @@ router.post("/register", async (req, res) => {
   console.log("🔹 Register Request Received:", { name, email });
 
   try {
-    const pool = await connectDB(); // ✅ Ensure valid DB connection
-
-    if (!pool.connected) {
-      console.error("❌ Database connection is not available.");
-      return res.status(500).json({ error: "Database connection failed" });
-    }
-
-    console.log("🔹 Connected to Database");
+    const client = await pool.connect();
 
     // ✅ Check if email already exists
-    const existingUser = await pool
-      .request()
-      .input("email", sql.VarChar, email)
-      .query("SELECT * FROM Users WHERE email = @email");
-
-    if (existingUser.recordset.length > 0) {
+    const existingUser = await client.query(
+      "SELECT * FROM users WHERE email = $1",
+      [email]
+    );
+    if (existingUser.rows.length > 0) {
+      client.release();
       console.log("❌ Email already exists");
       return res.status(400).json({ error: "Email already exists" });
     }
 
     // ✅ Hash the password
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
+    const hashedPassword = await bcrypt.hash(password, 10);
     console.log("🔹 Hashed Password Created");
 
     // ✅ Insert new user into database
-    await pool
-      .request()
-      .input("name", sql.VarChar, name)
-      .input("email", sql.VarChar, email)
-      .input("password", sql.VarChar, hashedPassword)
-      .query(
-        "INSERT INTO Users (name, email, password) VALUES (@name, @email, @password)"
-      );
+    await client.query(
+      "INSERT INTO users (name, email, password) VALUES ($1, $2, $3)",
+      [name, email, hashedPassword]
+    );
 
+    client.release();
     console.log("✅ User Registered Successfully");
     res.status(201).json({ message: "User registered successfully" });
   } catch (error) {
@@ -60,15 +49,13 @@ router.post("/login", async (req, res) => {
   console.log("🔹 Login Request Received:", { email });
 
   try {
-    const pool = await connectDB();
-    console.log("🔹 Connected to Database");
+    const client = await pool.connect();
+    const result = await client.query("SELECT * FROM users WHERE email = $1", [
+      email,
+    ]);
 
-    const result = await pool
-      .request()
-      .input("email", sql.VarChar, email)
-      .query("SELECT * FROM Users WHERE email = @email");
-
-    const user = result.recordset[0];
+    const user = result.rows[0];
+    client.release();
 
     if (!user) {
       console.log("❌ Invalid email");
@@ -94,7 +81,7 @@ router.post("/login", async (req, res) => {
   }
 });
 
-// ✅ Fetch authenticated user details (Protected Route)
+// ✅ Fetch authenticated user details
 router.get("/me", async (req, res) => {
   const token = req.headers.authorization?.split(" ")[1];
 
@@ -106,18 +93,18 @@ router.get("/me", async (req, res) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const pool = await connectDB();
+    const client = await pool.connect();
+    const user = await client.query(
+      "SELECT id, name, email FROM users WHERE id = $1",
+      [decoded.id]
+    );
+    client.release();
 
-    const user = await pool
-      .request()
-      .input("id", sql.Int, decoded.id)
-      .query("SELECT id, name, email FROM Users WHERE id = @id");
-
-    if (!user.recordset[0]) {
+    if (user.rows.length === 0) {
       return res.status(404).json({ message: "User not found" });
     }
 
-    res.json(user.recordset[0]);
+    res.json(user.rows[0]);
   } catch (error) {
     console.error("❌ Error Fetching User Data:", error);
     res.status(500).json({ error: "Server Error", details: error.message });

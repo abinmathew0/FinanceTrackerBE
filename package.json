@@ -2,12 +2,10 @@
   "name": "financetracker",
   "version": "1.0.0",
   "main": "server.js",
-  
   "scripts": {
     "start": "node server.js",
     "build": "npm install"
-  }
-  ,
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -17,7 +15,9 @@
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
+    "googleapis": "^146.0.0",
     "jsonwebtoken": "^9.0.2",
-    "mssql": "^11.0.1"
+    "mssql": "^11.0.1",
+    "pg": "^8.13.3"
   }
 }
