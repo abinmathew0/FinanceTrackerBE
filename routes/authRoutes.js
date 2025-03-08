@@ -111,4 +111,51 @@ router.get("/me", async (req, res) => {
   }
 });
 
+// ✅ Change Password (for logged-in user)
+router.post("/change-password", async (req, res) => {
+  const token = req.headers.authorization?.split(" ")[1];
+  if (!token) {
+    return res.status(401).json({ message: "Unauthorized - No Token Provided" });
+  }
+  
+  try {
+    // Verify the JWT token from the headers
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const { currentPassword, newPassword } = req.body;
+    
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ message: "Current and new password are required" });
+    }
+    
+    const client = await pool.connect();
+    // Retrieve the user's current password hash from the database
+    const userResult = await client.query("SELECT password FROM users WHERE id = $1", [decoded.id]);
+    if (userResult.rows.length === 0) {
+      client.release();
+      return res.status(404).json({ message: "User not found" });
+    }
+    
+    const user = userResult.rows[0];
+    // Compare provided current password with the stored hash
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatch) {
+      client.release();
+      return res.status(400).json({ message: "Current password is incorrect" });
+    }
+    
+    // Hash the new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    // Update the user's password in the database
+    await client.query("UPDATE users SET password = $1 WHERE id = $2", [hashedPassword, decoded.id]);
+    client.release();
+    
+    res.json({ message: "Password changed successfully" });
+  } catch (error) {
+    console.error("❌ Error changing password:", error);
+    res.status(500).json({ error: "Server Error", details: error.message });
+  }
+});
+
+
+
 module.exports = router;
