@@ -7,11 +7,15 @@
     "rewrites": [
       { "source": "/api/(.*)", "destination": "/server.js" }
     ],
-    "routes": [
+    "headers": [
       {
-        "src": "/api/auth/login",
-        "dest": "/server.js",
-        "methods": ["POST", "OPTIONS"]
+        "source": "/api/(.*)",
+        "headers": [
+          { "key": "Access-Control-Allow-Origin", "value": "https://finance-tracker-fe-chi.vercel.app" },
+          { "key": "Access-Control-Allow-Methods", "value": "GET,POST,PUT,PATCH,DELETE,OPTIONS" },
+          { "key": "Access-Control-Allow-Headers", "value": "Content-Type,Authorization,X-Requested-With" },
+          { "key": "Access-Control-Allow-Credentials", "value": "true" }
+        ]
       }
     ]
   }
