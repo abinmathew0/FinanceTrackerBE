@@ -8,35 +8,24 @@ dotenv.config();
 const app = express();
 
 // ----------------------------------------------------------------------------
-// 🔐 CORS configuration
+// 🔐 CORS configuration: allow all origins
 // ----------------------------------------------------------------------------
-// Define all allowed client origins via environment variables
-const allowedOrigins = [
-  process.env.FRONTEND_URL, // e.g. https://finance-tracker-fe-abin-mathews-projects.vercel.app
-  process.env.FE_PREVIEW_URL, // e.g. https://finance-tracker-fe-chi.vercel.app
-  "https://abinmathew.xyz",
-].filter(Boolean);
-
 const corsOptions = {
-  origin: (origin, callback) => {
-    // allow requests with no origin like mobile apps or curl
-    if (!origin || allowedOrigins.includes(origin)) {
-      return callback(null, true);
-    }
-    const msg = `CORS blocked: Origin ${origin} not in allowed list`;
-    return callback(new Error(msg), false);
-  },
+  origin: true, // reflect request origin, effectively allowing all
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true, // if you ever send cookies or auth headers
 };
 
-// Apply CORS
+// Apply CORS to all routes
 app.use(cors(corsOptions));
-// Explicitly handle preflight
+
+// Handle preflight across the board
 app.options("*", cors(corsOptions));
 
-// JSON body parsing
+// ----------------------------------------------------------------------------
+// 🚀 JSON body parsing
+// ----------------------------------------------------------------------------
 app.use(express.json());
 
 // ----------------------------------------------------------------------------
