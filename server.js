@@ -10,25 +10,33 @@ const app = express();
 // ----------------------------------------------------------------------------
 // 🔐 CORS configuration
 // ----------------------------------------------------------------------------
-// Put your FE deploy URL here (or in .env as FRONTEND_URL)
+// Read your primary front-end URL from .env (e.g. finance-tracker FE)
+// and also allow your personal domain abi nmath ew.xyz
 const FRONTEND_URL =
   process.env.FRONTEND_URL ||
-  "https://finance-tracker-fe-git-main-abin-mathews-projects.vercel.app";
+  "https://finance-tracker-fe-abin-mathews-projects.vercel.app";
+
+const allowedOrigins = [
+  FRONTEND_URL,
+  "https://abinmathew.xyz",
+  "https://finance-tracker-fe-chi.vercel.app",
+  "https://finance-tracker-fe-git-main-abin-mathews-projects.vercel.app/",
+];
 
 const corsOptions = {
-  origin: FRONTEND_URL,
+  origin: allowedOrigins,
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true, // if you ever send cookies or auth headers
 };
 
-// allow CORS on all routes
+// Enable CORS for all routes
 app.use(cors(corsOptions));
 
-// handle preflight across the board
+// Handle preflight requests
 app.options("*", cors(corsOptions));
 
-// parse JSON bodies
+// Parse JSON bodies
 app.use(express.json());
 
 // ----------------------------------------------------------------------------
