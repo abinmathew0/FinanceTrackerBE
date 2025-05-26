@@ -10,33 +10,33 @@ const app = express();
 // ----------------------------------------------------------------------------
 // 🔐 CORS configuration
 // ----------------------------------------------------------------------------
-// Read your primary front-end URL from .env (e.g. finance-tracker FE)
-// and also allow your personal domain abi nmath ew.xyz
-const FRONTEND_URL =
-  process.env.FRONTEND_URL ||
-  "https://finance-tracker-fe-abin-mathews-projects.vercel.app";
-
+// Define all allowed client origins via environment variables
 const allowedOrigins = [
-  FRONTEND_URL,
+  process.env.FRONTEND_URL, // e.g. https://finance-tracker-fe-abin-mathews-projects.vercel.app
+  process.env.FE_PREVIEW_URL, // e.g. https://finance-tracker-fe-chi.vercel.app
   "https://abinmathew.xyz",
-  "https://finance-tracker-fe-chi.vercel.app",
-  "https://finance-tracker-fe-git-main-abin-mathews-projects.vercel.app/",
-];
+].filter(Boolean);
 
 const corsOptions = {
-  origin: allowedOrigins,
+  origin: (origin, callback) => {
+    // allow requests with no origin like mobile apps or curl
+    if (!origin || allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    const msg = `CORS blocked: Origin ${origin} not in allowed list`;
+    return callback(new Error(msg), false);
+  },
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true, // if you ever send cookies or auth headers
 };
 
-// Enable CORS for all routes
+// Apply CORS
 app.use(cors(corsOptions));
-
-// Handle preflight requests
+// Explicitly handle preflight
 app.options("*", cors(corsOptions));
 
-// Parse JSON bodies
+// JSON body parsing
 app.use(express.json());
 
 // ----------------------------------------------------------------------------
