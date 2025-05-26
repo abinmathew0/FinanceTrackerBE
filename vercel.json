@@ -4,33 +4,17 @@
       { "src": "server.js", "use": "@vercel/node" },
       { "src": "routes/**/*.js", "use": "@vercel/node" }
     ],
-    "routes": [
-      {
-        "src": "/api/(.*)",
-        "dest": "/server.js",
-        "methods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]
-      }
+    "rewrites": [
+      { "source": "/api/(.*)", "destination": "/server.js" }
     ],
     "headers": [
       {
         "source": "/api/(.*)",
         "headers": [
-          { 
-            "key": "Access-Control-Allow-Origin", 
-            "value": "https://finance-tracker-fe-git-main-abin-mathews-projects.vercel.app" 
-          },
-          { 
-            "key": "Access-Control-Allow-Methods", 
-            "value": "GET,POST,PUT,PATCH,DELETE,OPTIONS" 
-          },
-          { 
-            "key": "Access-Control-Allow-Headers", 
-            "value": "Content-Type, Authorization, X-Requested-With" 
-          },
-          { 
-            "key": "Access-Control-Allow-Credentials", 
-            "value": "true" 
-          }
+          { "key": "Access-Control-Allow-Origin", "value": "https://finance-tracker-fe-git-main-abin-mathews-projects.vercel.app" },
+          { "key": "Access-Control-Allow-Methods", "value": "GET,POST,PUT,PATCH,DELETE,OPTIONS" },
+          { "key": "Access-Control-Allow-Headers", "value": "Content-Type,Authorization,X-Requested-With" },
+          { "key": "Access-Control-Allow-Credentials", "value": "true" }
         ]
       }
     ]
