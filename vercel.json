@@ -1,25 +1,41 @@
 {
     "version": 2,
     "builds": [
-      { "src": "server.js",       "use": "@vercel/node" },
-      { "src": "routes/**/*.js",  "use": "@vercel/node" }
+      { "src": "server.js", "use": "@vercel/node" },
+      { "src": "routes/**/*.js", "use": "@vercel/node" }
     ],
     "routes": [
       {
         "src": "/api/(.*)",
-        "dest": "/server.js"
+        "dest": "/server.js",
+        "methods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]
       }
     ],
     "headers": [
       {
         "source": "/api/(.*)",
         "headers": [
-          { "key": "Access-Control-Allow-Origin",      "value": "*" },
-          { "key": "Access-Control-Allow-Methods",     "value": "GET,POST,PUT,PATCH,DELETE,OPTIONS" },
-          { "key": "Access-Control-Allow-Headers",     "value": "Content-Type,Authorization" },
-          { "key": "Access-Control-Allow-Credentials", "value": "true" }
+          { 
+            "key": "Access-Control-Allow-Origin", 
+            "value": "https://finance-tracker-fe-chi.vercel.app" 
+          },
+          { 
+            "key": "Access-Control-Allow-Methods", 
+            "value": "GET,POST,PUT,PATCH,DELETE,OPTIONS" 
+          },
+          { 
+            "key": "Access-Control-Allow-Headers", 
+            "value": "Content-Type, Authorization, X-Requested-With" 
+          },
+          { 
+            "key": "Access-Control-Allow-Credentials", 
+            "value": "true" 
+          },
+          {
+            "key": "Access-Control-Max-Age",
+            "value": "86400"
+          }
         ]
       }
     ]
   }
-  
