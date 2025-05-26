@@ -12,7 +12,8 @@ const app = express();
 // ----------------------------------------------------------------------------
 // Put your FE deploy URL here (or in .env as FRONTEND_URL)
 const FRONTEND_URL =
-  process.env.FRONTEND_URL;
+  process.env.FRONTEND_URL ||
+  "https://finance-tracker-fe-git-main-abin-mathews-projects.vercel.app";
 
 const corsOptions = {
   origin: FRONTEND_URL,
