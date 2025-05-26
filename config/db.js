@@ -1,23 +1,8 @@
-const { Pool } = require("pg");
-require("dotenv").config();
+const { DynamoDBClient } = require("@aws-sdk/client-dynamodb");
+const { DynamoDBDocumentClient } = require("@aws-sdk/lib-dynamodb");
 
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL, // ✅ Use connection string for PostgreSQL
-  ssl: {
-    rejectUnauthorized: false, // ✅ Required for Render PostgreSQL
-  },
-});
+// Region is automatically picked up from your env (AWS_REGION)
+const client = new DynamoDBClient({});
+const dynamodb = DynamoDBDocumentClient.from(client);
 
-// ✅ Establish connection
-const connectDB = async () => {
-  try {
-    const client = await pool.connect();
-    console.log("✅ Connected to PostgreSQL Database");
-    client.release(); // Release connection
-  } catch (error) {
-    console.error("❌ Database Connection Failed:", error.message);
-    process.exit(1);
-  }
-};
-
-module.exports = { pool, connectDB };
+module.exports = { dynamodb };
